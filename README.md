@@ -1,12 +1,17 @@
-Version 0.3
+**Version 0.3**
+
 Here's what it does so far:
+
 1. Downloads the 'all projects' page
 2. Parses it to collect useable information about each project
 3. Follows its link and collects more information from its page
 4. Goes through the rest of the pages
 
-How to run:
-    $ python3 lpscraper.py
+**How to run:**
+
+```
+$ python3 lpscraper.py
+```
 You can also add the following options:
-    -v          Be very verbose
-    -testicon   exit after the first project icon is found and print extra information about it
+* -v : Be very verbose
+* -testicon : Exit after the first project icon is found and print extra information about it
