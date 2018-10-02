@@ -3,17 +3,22 @@
 import sys
 import time
 
-from httplib import HTTPSConnection # LP requires HTTPS in many places
-from urllib2 import urlopen 
+from http.client import HTTPSConnection # LP requires HTTPS in many places
+from urllib.request import urlopen 
 from datetime import datetime
 
 global hconn
 hconn = HTTPSConnection('launchpad.net', 443)
 
-if '-v' in sys.argv: v = True
-else: v = False
-if '-testicon' in sys.argv: testicon = True
-else: testicon = False
+if '-v' in sys.argv: 
+    v = True
+else: 
+    v = False
+
+if '-testicon' in sys.argv: 
+    testicon = True
+else: 
+    testicon = False
 
 #print repos, "\t", language, "\t", description, "\t", watchers, "\t", time, "\n"
 global fdate
@@ -31,7 +36,8 @@ def do_proj_page(pageurl):
     global fdate
     global flanguage
     global hconn
-    if v: print '- downloading project page...'
+    if v: 
+        print('- downloading project page...')
     try: 
         hconn.request('GET', pageurl, headers={
           "User-Agent": "Wget/1.10"
@@ -47,9 +53,11 @@ def do_proj_page(pageurl):
             sys.stderr.write('could not download that page. check internet connection and retry\n')
             exit(1)
             
-    if v: print '- done'
+    if v: 
+        print('- done')
     
-    if v: print '- parsing it'
+    if v: 
+        print('- parsing it')
     dates = []
     for datesec in lp.split('on '): # the best thing I could find, almost all dates are like this: "...on 2011-05-02..."
         try: pdate = datesec.split()[0].split('<')[0] # split with whitespace or <
@@ -70,9 +78,9 @@ def do_proj_page(pageurl):
     elif str(current_year) + '-' in lp:
         fdate = str(current_year)
     else: # no regularly formatted years at all, and not the current year. probably an inactive project
-        print str(current_year) + '-', str(current_year) + '-' in lp
+        print(str(current_year) + '-', str(current_year) + '-' in lp)
         fdate = 'old'
-    #print fdate
+    #print(fdate)
         
     try: flanguage = lp.split('<dd><span id="edit-programminglang"><span class="yui3-editable_text-text">')[1].split('</span>')[0]
     except IndexError: flanguage = ''
@@ -81,7 +89,8 @@ def do_proj_page(pageurl):
 
 def do_page(pageurl):
     global hconn
-    if v: print '- downloading page...'
+    if v: 
+        (print '- downloading page...')
 
     try: 
         hconn.request('GET', pageurl, headers={
@@ -97,10 +106,12 @@ def do_page(pageurl):
         except:
             sys.stderr.write('could not download that page. check internet connection and retry\n')
             exit(1)
-    if v: print '- done'
+    if v: 
+        print('- done')
     
     # this splits the whole thing into a list of the project divs
-    if v: print '- parsing it...'
+    if v: 
+        print('- parsing it...')
     projects = '<div>'.join(lp.split("<div>")[1:]).split("""    </table>
         <table style="width: 100%;" class="lower-batch-nav">
       <tbody>
@@ -109,9 +120,10 @@ def do_page(pageurl):
 
 
     first = True # the first one is slightly different
-    if v: print '- projects', len(projects.split("""    </div>
+    if v:
+        print('- projects', len(projects.split("""    </div>)
   </div>
-</div>""")[0:-1])
+</div>""")[0:-1]))
     for proj in projects.split("""    </div>
   </div>
 </div>""")[0:-1]: # this is always at the end of each project section
@@ -139,9 +151,12 @@ def do_page(pageurl):
             id14 = icon14.split('/')[3]
             id64 = str(int(id14) + 1)
             icon64 = icon14.replace(id14,  id64).replace("14.png",  "64.png")
-            if testicon: print icon14, '=>', id14,  '=>', id64, '=>',   icon64,
-            if testicon: exit(1)
-        else: icon64 = None
+            if testicon: 
+                print(icon14, '=>', id14,  '=>', id64, '=>',   icon64)
+            if testicon: 
+                exit(1)
+        else: 
+            icon64 = None
         
         #print name
         #print url
@@ -156,18 +171,18 @@ def do_page(pageurl):
         fauthor = author
         fauthorurl = authorurl
         ficon = icon64
-        
-        
-        
-        
+            
         first = False
         do_proj_page('/' + '/'.join(url.split('/')[3:]))
         global fdate
         time.sleep(1) # sleep 1 second and continue
-        if ficon: print fname, '\t', frepo, "\t", flanguage, "\t", fdescription, "\t", ficon, "\t", fdate, "\t", fauthor
-        else: print fname, '\t', frepo, "\t", flanguage, "\t", fdescription, "\t", '', "\t", fdate, "\t", fauthor
+        if ficon: 
+            print(fname, '\t', frepo, "\t", flanguage, "\t", fdescription, "\t", ficon, "\t", fdate, "\t", fauthor)
+        else: 
+            print(fname, '\t', frepo, "\t", flanguage, "\t", fdescription, "\t", '', "\t", fdate, "\t", fauthor)
         
-    if v: print '- done'
+    if v: 
+        print('- done')
         
 
 # unique bits we can use to split the html by to get the # of projects
@@ -176,37 +191,33 @@ start = """<p>There are
 end = """</strong>
     projects registered in Launchpad."""
 
-if v: print 'Getting first page to count the projects...'
-try: lp = urlopen("http://launchpad.net/projects/+all?batch=1").read() # 
+if v: 
+    print('Getting first page to count the projects...')
+try: 
+    lp = urlopen("http://launchpad.net/projects/+all?batch=1").read() # 
 except: 
     sys.stderr.write('error downloading first page, please rerun\n')
     exit(1)
-if v: print 'done'
+if v: 
+    print('done')
 
-if v: print 'parsing that page...'
+if v: 
+    print('parsing that page...')
 total = float(lp.split(start)[1].split(end)[0] + '.0000000')
 
 pages = (total + 299) // 300  # 300 results per page (its the limit)
 
-if v: print 'done,', pages, 'pages'
+if v: 
+    print('done,', pages, 'pages')
 # now the interesting part, get EVERY SINGLE PAGE!!!
 for pagenum in range(0, int(pages)):
-    if v: print 'starting page', pagenum + 1
+    if v: 
+        print('starting page', pagenum + 1)
     url = '/projects/+all?start=%s&batch=300' % (pagenum * 300)
-    try: do_page(url)
+    try: 
+        do_page(url)
     except: 
-        try: do_page(url)
-        except: sys.stderr.write('failed to download batch page!')
-    
-
-
-
-
-
-
-
-
-
-
-
-
+        try: 
+            do_page(url)
+        except: 
+            sys.stderr.write('failed to download batch page!')

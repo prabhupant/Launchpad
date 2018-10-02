@@ -6,7 +6,7 @@ Here's what it does so far:
 4. Goes through the rest of the pages
 
 How to run:
-    $ python lpscraper.py
+    $ python3 lpscraper.py
 You can also add the following options:
     -v          Be very verbose
     -testicon   exit after the first project icon is found and print extra information about it
